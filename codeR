@@ -1,0 +1,96 @@
+dfnew <- read.table("Text_MMAEXC2.csv", header=TRUE, 
+                  sep=",")
+
+getwd()
+setwd("C:/Users/ugem129/Documents/R/MMA_R")
+
+na.omit(dfnew$SUB_BIZ_Justification)
+datasubset<-subset(dfnew, SUB_BIZ_Justification != "null")
+install.packages("SnowballC")
+install.packages("tm")
+install.packages("NLP")
+library(NLP)
+library(tm)
+library(ggplot2)
+library(SnowballC)
+
+VectorSource <-VectorSource(datasubset$SUB_BIZ_Justification)
+corpus <-Corpus(VectorSource)
+review_corpus_MMA = tm_map(corpus, (tolower))
+
+
+
+
+myStopwords = c(stopwords(),"the","from", "total", "month", "new", "since", "and", "for", "client", "account", "brought", "clients","that" , "with", "has","have","his", "mma", "will", "she", "suntrust", "account", "bank", "like", "also", "well")
+
+#link to code: https://rstudio-pubs-static.s3.amazonaws.com/118341_dacd8e7a963745eeacf25f96da52770e.html
+#R documentation https://www.rdocumentation.org/packages/tm/versions/0.5-3/topics/TermDocumentMatrix 
+
+#TF weighting
+tdm = TermDocumentMatrix(review_corpus,
+                         control = list(weighting = weightTf,
+                                        stopwords = myStopwords, 
+                                        removePunctuation = T,
+                                        removeNumbers = T,
+                                        stemming = F))
+
+tdm
+
+test<- weightTfIdf(review_corpus, normalize = TRUE)
+
+
+freq<-rowSums(as.matrix(tdm))
+head(freq,10)
+
+
+high.freq3=tail(sort(freq),n=980)
+hfp.df3=as.data.frame(sort(high.freq3))
+hfp.df3$names <- rownames(hfp.df3) 
+
+tail <-tail(hfp.df3,200)
+tail
+head <-head(hfp.df3,200)
+head
+
+set.seed(1234)
+
+wordcloud(words = rownames(hfp.df3) , freq = hfp.df3$`sort(high.freq3)`, min.freq = 1,
+          max.words=980, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+
+
+
+
+#term frequency weighting change
+tdm1 = TermDocumentMatrix(review_corpus,
+                          control = list(weighting = weightTfidf,
+                                         stopwords = myStopwords, 
+                                         removePunctuation = T,
+                                         removeNumbers = T,
+                                         stemming = F))
+#matrix to table
+freq<-rowSums(as.matrix(tdm1))
+head(freq,10)
+
+
+high.freq=tail(sort(freq),n=980)
+hfp.df=as.data.frame(sort(high.freq))
+hfp.df$names <- rownames(hfp.df) 
+
+tail <-tail(hfp.df,200)
+tail
+set.seed(1234)
+
+wordcloud(words = rownames(hfp.df) , freq = hfp.df$`sort(high.freq)`, min.freq = 1,
+          max.words=125, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+
+
+ht<-head(freq,15)
+head(freq,15)
+freqsort<-tail(high.freq, 100)
+tail(high.freq, 150
+    )
+
+write.csv(hfp.df3, file = "termfreq.weighttfidf3.csv")
+
