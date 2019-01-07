@@ -13,7 +13,10 @@ library(corpus)
 
 #one crazy simple line of code lol
 review_corpus_MMA = tm_map(corpus, removeWords, c("the","from", "and", "for", "client", "account", "brought", "clients","that" , "with", "has","have","his", "mma", "will", "she"))
+
+#two word phrases with this code:
 dfcf_MMA2<-term_stats(review_corpus_MMA, ngrams = 2:3)
+
 
 
 #Here, count is the number of appearances, and support is the number of documents containing the term.
